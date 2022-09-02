@@ -8,7 +8,9 @@ use crossterm::{terminal, ExecutableCommand, event};
 use crossterm::terminal::{EnterAlternateScreen, LeaveAlternateScreen};
 use crossterm::cursor::{Hide, Show};
 use invaders::frame;
+use invaders::frame::Drawable;
 use invaders::frame::new_frame;
+use invaders::player::Player;
 use invaders::render;
 use rusty_audio::Audio;
 
@@ -67,9 +69,12 @@ fn main() -> Result <(), Box<dyn Error>> {
     });
 
     // MAIN GAME LOOP
+    // set new player
+    let mut player = Player::new();
+
     'gameloop: loop {
         // Per-frame initialization
-        let curr_frame = new_frame();
+        let mut curr_frame = new_frame();
 
         // INPUT HANDLING
         // poll for input events, duration set to default (immediate)
@@ -77,6 +82,9 @@ fn main() -> Result <(), Box<dyn Error>> {
             // if key event (code), read and match on input
             if let Event::Key(key_event) = event::read()? {
                 match key_event.code {
+                    // handle left and right keys
+                    KeyCode::Left => player.move_left(),
+                    KeyCode::Right => player.move_right(),
                     // inputing 'q' or hitting 'esc'
                     KeyCode::Esc | KeyCode::Char('q') => {
                         // play lose sound and exit loop
@@ -89,6 +97,9 @@ fn main() -> Result <(), Box<dyn Error>> {
         }
 
         // DRAW & RENDER
+        // draw player with current frame position
+        player.draw(&mut curr_frame);
+        
         // send frame, .send moves to a different thread
         // expects to fail first few times because game loop starts before child thread
         // starts recieving. ignore it silently let _ (wildcard)

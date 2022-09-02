@@ -1,6 +1,9 @@
 // module for creating frames
 pub mod frame;
 
+// module for creating player
+pub mod player;
+
 // module for rendering frame to the terminal
 pub mod render;
 
