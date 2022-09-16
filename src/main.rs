@@ -11,6 +11,7 @@ use crossterm::cursor::{Hide, Show};
 use invaders::frame;
 use invaders::frame::Drawable;
 use invaders::frame::new_frame;
+use invaders::invaders::Invaders;
 use invaders::player::Player;
 use invaders::render;
 use rusty_audio::Audio;
@@ -70,10 +71,10 @@ fn main() -> Result <(), Box<dyn Error>> {
     });
 
     // MAIN GAME LOOP
-    // set new player
+    // set new player and invaders
     let mut player = Player::new();
-    // std::time::Instant
     let mut instant = Instant::now();
+    let mut invaders = Invaders::new();
 
     'gameloop: loop {
         // Per-frame initialization //
@@ -111,12 +112,21 @@ fn main() -> Result <(), Box<dyn Error>> {
             }
         }
 
-        // UPDATES
+        // UPDATES TO TIMERS
         player.update(delta);
+        if invaders.update(delta) {
+            audio.play("move");
+        }
+        
 
         // DRAW & RENDER
-        // draw player with current frame position
-        player.draw(&mut curr_frame);
+        // draw player and invader with current frame position
+        // USING GENERICS WITH TRAIT!
+        // drawables is a vector of anything that implements Drawable trait which is a vector of a player and invader reference
+        let drawables: Vec<&dyn Drawable> = vec![&player, &invaders];
+        for drawable in drawables { 
+            drawable.draw(&mut curr_frame);
+        }
 
         // send frame, .send moves to a different thread
         // expects to fail first few times because game loop starts before child thread
