@@ -1,9 +1,11 @@
 use std::io::{Stdout, Write};
 use crate::frame::Frame;
-use crossterm::QueueableCommand;
-use crossterm::cursor::MoveTo;
-use crossterm::style::{SetBackgroundColor, Color};
-use crossterm::terminal::{Clear, ClearType};
+use crossterm::{
+    QueueableCommand,
+    cursor::MoveTo,
+    style::{SetBackgroundColor, Color},
+    terminal::{Clear, ClearType},
+};
 
 // render function takes mutable reference to Stdout, only render what changed with
 // last_frame and curr_frame which are references to Frame

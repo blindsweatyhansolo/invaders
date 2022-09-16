@@ -1,33 +1,35 @@
-use std::error::Error;
-use std::thread;
-use std::io;
-use std::sync::mpsc;
-use std::time::Duration;
-use std::time::Instant;
-use crossterm::event::{KeyCode, Event};
-use crossterm::{terminal, ExecutableCommand, event};
-use crossterm::terminal::{EnterAlternateScreen, LeaveAlternateScreen};
-use crossterm::cursor::{Hide, Show};
-use invaders::frame;
-use invaders::frame::Drawable;
-use invaders::frame::new_frame;
-use invaders::invaders::Invaders;
-use invaders::player::Player;
-use invaders::render;
 use rusty_audio::Audio;
+
+use std::{
+    error::Error,
+    sync::mpsc,
+    time::{Duration, Instant},
+    {io, thread}
+};
+
+use crossterm::{
+    cursor::{Hide, Show},
+    event::{self, Event, KeyCode},
+    terminal::{self, EnterAlternateScreen, LeaveAlternateScreen},
+    ExecutableCommand,
+};
+
+use invaders::{
+    frame::{self, new_frame, Drawable},
+    invaders::Invaders,
+    player::Player,
+    render,
+};
+
 
 fn main() -> Result <(), Box<dyn Error>> {
     // create mutable audio variable using rusty_audio crate Audio
     let mut audio = Audio::new();
 
     // add all audio sources to audio manager
-    audio.add("explode", "explode.wav");
-    audio.add("lose", "lose.wav");
-    audio.add("move", "move.wav");
-    audio.add("pew", "pew.wav");
-    audio.add("startup", "startup.wav");
-    audio.add("win", "win.wav");
-
+    for item in &["explode", "lose", "move", "pew", "startup", "win"] {
+        audio.add(item, &format!("audio/{}.wav", item));
+    }
     audio.play("startup");
 
     // TERMINAL
