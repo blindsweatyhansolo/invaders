@@ -3,6 +3,7 @@ use std::thread;
 use std::io;
 use std::sync::mpsc;
 use std::time::Duration;
+use std::time::Instant;
 use crossterm::event::{KeyCode, Event};
 use crossterm::{terminal, ExecutableCommand, event};
 use crossterm::terminal::{EnterAlternateScreen, LeaveAlternateScreen};
@@ -71,9 +72,16 @@ fn main() -> Result <(), Box<dyn Error>> {
     // MAIN GAME LOOP
     // set new player
     let mut player = Player::new();
+    // std::time::Instant
+    let mut instant = Instant::now();
 
     'gameloop: loop {
-        // Per-frame initialization
+        // Per-frame initialization //
+        // delta is set to however much time has elapsed since initialization
+        // update instant to next now(), next loop the time
+        // it took to go around the loop can be measured
+        let delta = instant.elapsed();
+        instant = Instant::now();
         let mut curr_frame = new_frame();
 
         // INPUT HANDLING
@@ -85,6 +93,13 @@ fn main() -> Result <(), Box<dyn Error>> {
                     // handle left and right keys
                     KeyCode::Left => player.move_left(),
                     KeyCode::Right => player.move_right(),
+                    // handle shots with 'space' or 'enter'
+                    KeyCode::Char(' ') | KeyCode::Enter => {
+                        // shoot() returns boolean 
+                        if player.shoot() {
+                            audio.play("pew");
+                        }
+                    }
                     // inputing 'q' or hitting 'esc'
                     KeyCode::Esc | KeyCode::Char('q') => {
                         // play lose sound and exit loop
@@ -96,10 +111,13 @@ fn main() -> Result <(), Box<dyn Error>> {
             }
         }
 
+        // UPDATES
+        player.update(delta);
+
         // DRAW & RENDER
         // draw player with current frame position
         player.draw(&mut curr_frame);
-        
+
         // send frame, .send moves to a different thread
         // expects to fail first few times because game loop starts before child thread
         // starts recieving. ignore it silently let _ (wildcard)
