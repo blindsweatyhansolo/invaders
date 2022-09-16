@@ -112,10 +112,13 @@ fn main() -> Result <(), Box<dyn Error>> {
             }
         }
 
-        // UPDATES TO TIMERS
+        // UPDATES TO TIMERS AND HITS
         player.update(delta);
         if invaders.update(delta) {
             audio.play("move");
+        }
+        if player.detect_hits(&mut invaders) {
+            audio.play("explode");
         }
         
 
@@ -137,6 +140,16 @@ fn main() -> Result <(), Box<dyn Error>> {
         // artificial sleep adds limit to no more than generating 1000 fps to avoid
         // falling behind when rendering
         thread::sleep(Duration::from_millis(1));
+
+        // WIN OR LOSE
+        if invaders.all_killed() {
+            audio.play("win");
+            break 'gameloop;
+        }
+        if invaders.reached_bottom() {
+            audio.play("lose");
+            break 'gameloop;
+        }
 
     }
 
