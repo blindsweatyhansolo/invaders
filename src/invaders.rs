@@ -1,7 +1,7 @@
-use std::{time::Duration, cmp::max};
-use rusty_time::timer::Timer;
+use crate::frame::{Drawable, Frame};
 use crate::{NUM_COLS, NUM_ROWS};
-use crate::frame::{ Frame, Drawable };
+use rusty_time::timer::Timer;
+use std::{cmp::max, time::Duration};
 
 // create SINGLE Invader struct, fields for position
 pub struct Invader {
@@ -33,9 +33,10 @@ impl Invaders {
                     && (y > 0)
                     && (y < 9) // stop spot halfway down screen
                     && (x % 2 == 0) // set to every even number for space
-                    && (y % 2 == 0) {
-                        army.push(Invader { x, y });
-                    }
+                    && (y % 2 == 0)
+                {
+                    army.push(Invader { x, y });
+                }
             }
         }
         // return self
@@ -92,7 +93,6 @@ impl Invaders {
                     // set x as i32 and add to self.direction (which is an i32), cast back as usize
                     invader.x = ((invader.x as i32) + self.direction) as usize;
                 }
-
             }
             return true;
         }
@@ -108,20 +108,19 @@ impl Invaders {
         self.army.iter().map(|invader| invader.y).max().unwrap_or(0) >= NUM_ROWS - 1
     }
 
-    pub fn kill_invader_at(&mut self, x: usize, y: usize) -> bool { 
+    pub fn kill_invader_at(&mut self, x: usize, y: usize) -> bool {
         // get index of invaders position on screen
         if let Some(idx) = self
             .army
             .iter()
-            .position(|invader| (invader.x == x) && (invader.y == y)) {
-                self.army.remove(idx);
-                true
+            .position(|invader| (invader.x == x) && (invader.y == y))
+        {
+            self.army.remove(idx);
+            true
         } else {
             false
         }
     }
-
-
 }
 
 impl Drawable for Invaders {
@@ -130,12 +129,14 @@ impl Drawable for Invaders {
         for invader in self.army.iter() {
             // calculate what half of timer we are in: divide time left by total duration
             // if less than 0.5 display x, otherwise +
-            frame[invader.x][invader.y] = if (self.move_timer.time_left.as_secs_f32() 
-                / self.move_timer.duration.as_secs_f32()) > 0.5 {
-                    "x"
-                } else {
-                    "+"
-                };
+            frame[invader.x][invader.y] = if (self.move_timer.time_left.as_secs_f32()
+                / self.move_timer.duration.as_secs_f32())
+                > 0.5
+            {
+                "x"
+            } else {
+                "+"
+            };
         }
     }
 }

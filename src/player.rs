@@ -1,10 +1,10 @@
-use std::time::Duration;
 use crate::{
-    frame::{ Frame, Drawable },
+    frame::{Drawable, Frame},
     invaders::Invaders,
     shot::Shot,
-    { NUM_COLS, NUM_ROWS },
+    {NUM_COLS, NUM_ROWS},
 };
+use std::time::Duration;
 
 // create Player struct, fields for its position (x , y)
 pub struct Player {
@@ -19,7 +19,7 @@ impl Player {
     pub fn new() -> Self {
         Self {
             x: NUM_COLS / 2, // roughly half way point
-            y: NUM_ROWS - 1, // last playable row 
+            y: NUM_ROWS - 1, // last playable row
             shots: Vec::new(),
         }
     }
@@ -43,7 +43,7 @@ impl Player {
         // set to only 2 shots at a time
         if self.shots.len() < 2 {
             // push new coordinates (one cell above player position)
-            self.shots.push(Shot::new(self.x, self.y -1));
+            self.shots.push(Shot::new(self.x, self.y - 1));
             true
         } else {
             false
@@ -77,9 +77,7 @@ impl Player {
         }
 
         hit_something
-
     }
-
 }
 
 impl Drawable for Player {
@@ -92,5 +90,4 @@ impl Drawable for Player {
             shot.draw(frame);
         }
     }
-
 }

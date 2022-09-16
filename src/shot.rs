@@ -1,6 +1,6 @@
-use std::time::Duration;
-use rusty_time::timer::Timer;
 use crate::frame::{Drawable, Frame};
+use rusty_time::timer::Timer;
+use std::time::Duration;
 
 // create struct for Shot
 // fields for position, whether it is exploding
@@ -48,9 +48,8 @@ impl Shot {
     // is the shot 'dead'
     pub fn dead(&self) -> bool {
         // if exploded and timer has run out OR shot has reached top
-        (self.exploding && self.timer.ready ) || (self.y == 0)
+        (self.exploding && self.timer.ready) || (self.y == 0)
     }
-
 }
 
 // draw shot with draw()

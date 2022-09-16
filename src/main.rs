@@ -4,7 +4,7 @@ use std::{
     error::Error,
     sync::mpsc,
     time::{Duration, Instant},
-    {io, thread}
+    {io, thread},
 };
 
 use crossterm::{
@@ -21,14 +21,13 @@ use invaders::{
     render,
 };
 
-
-fn main() -> Result <(), Box<dyn Error>> {
+fn main() -> Result<(), Box<dyn Error>> {
     // create mutable audio variable using rusty_audio crate Audio
     let mut audio = Audio::new();
 
     // add all audio sources to audio manager
     for item in &["explode", "lose", "move", "pew", "startup", "win"] {
-        audio.add(item, &format!("audio/{}.wav", item));
+        audio.add(item, &format!("audio/original/{}.wav", item));
     }
     audio.play("startup");
 
@@ -44,9 +43,9 @@ fn main() -> Result <(), Box<dyn Error>> {
 
     // RENDER LOOP in a separate thread (for speed optimization)
     // channel to communicate with threads
-    // (render transciever and render receiver) using mspc channels 
+    // (render transciever and render receiver) using mspc channels
     let (render_tx, render_rx) = mpsc::channel();
-    
+
     // THREAD: recieve frames and render them
     // catch thread handle (render_handle) with closure
     // move || closure captures end of channel
@@ -69,7 +68,7 @@ fn main() -> Result <(), Box<dyn Error>> {
             render::render(&mut stdout, &last_frame, &curr_frame, false);
             // housekeeping: last frame is now current frame to set up for next loop
             last_frame = curr_frame;
-        } 
+        }
     });
 
     // MAIN GAME LOOP
@@ -98,7 +97,7 @@ fn main() -> Result <(), Box<dyn Error>> {
                     KeyCode::Right => player.move_right(),
                     // handle shots with 'space' or 'enter'
                     KeyCode::Char(' ') | KeyCode::Enter => {
-                        // shoot() returns boolean 
+                        // shoot() returns boolean
                         if player.shoot() {
                             audio.play("pew");
                         }
@@ -122,14 +121,13 @@ fn main() -> Result <(), Box<dyn Error>> {
         if player.detect_hits(&mut invaders) {
             audio.play("explode");
         }
-        
 
         // DRAW & RENDER
         // draw player and invader with current frame position
         // USING GENERICS WITH TRAIT!
         // drawables is a vector of anything that implements Drawable trait which is a vector of a player and invader reference
         let drawables: Vec<&dyn Drawable> = vec![&player, &invaders];
-        for drawable in drawables { 
+        for drawable in drawables {
             drawable.draw(&mut curr_frame);
         }
 
@@ -152,11 +150,10 @@ fn main() -> Result <(), Box<dyn Error>> {
             audio.play("lose");
             break 'gameloop;
         }
-
     }
 
     // CLEANUP
-    // drop transmitting side of the channel, causes recieving channel to error and end loop 
+    // drop transmitting side of the channel, causes recieving channel to error and end loop
     // becoming safe to join threads
     drop(render_tx);
     render_handle.join().unwrap();
@@ -168,6 +165,4 @@ fn main() -> Result <(), Box<dyn Error>> {
     stdout.execute(LeaveAlternateScreen)?;
     terminal::disable_raw_mode()?;
     Ok(())
-
 }
-   
